@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AirLink Web v3.3</title>
+  <link rel="stylesheet" href="/static/style.css">
+
+  <!-- Load QRCode library first (CDN fallback ensures it's always defined) -->
+  <script src="/static/qrcode.min.js"></script>
+  <script>
+    if (typeof QRCode === "undefined") {
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+      document.head.appendChild(s);
+    }
+  </script>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    /* --- QR Code Styling --- */
+    #qrcode {
+      position: absolute;
+      top: 15px;
+      right: 25px;
+      width: 160px;
+      height: 160px;
+      background: #fff;
+      padding: 6px;
+      border-radius: 8px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.15);
+      z-index: 100; /* ensures it stays on top but not covering content */
+    }
+    header {
+      position: relative;
+      padding-right: 200px; /* leave space so text doesn't overlap the QR */
+    }
+    #qrFallback {
+      text-align: right;
+      font-size: 0.85rem;
+      color: #444;
+      margin-top: 6px;
+      opacity: .7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>AirLink Web</h1>
+      <p class="sub">Local, offline-friendly file transfer across your devices (LAN)</p>
+      <div class="host-line">
+        <span>Open on other devices:</span>
+        <code id="hostUrl">Detecting…</code>
+        <button id="copyBtn">Copy</button>
+      </div>
+      <div id="qrcode"></div>
+      <div id="qrFallback"></div>
+    </header>
+
+    <section class="identify">
+      <label>Your device name</label>
+      <input id="deviceName" placeholder="e.g. My iPhone">
+      <button id="saveName">Save</button>
+      <label class="ck"><input type="checkbox" id="autoTrust"> Auto-accept trusted senders</label>
+    </section>
+
+    <main class="grid">
+      <section class="dropzone" id="dropzone">
+        <h2>Drop files here or choose</h2>
+        <input type="file" id="fileInput" multiple>
+        <div id="uploads"></div>
+      </section>
+
+      <section class="devices">
+        <h2>Available Devices</h2>
+        <ul id="deviceList"></ul>
+      </section>
+    </main>
+
+    <section class="incoming">
+      <h2>Incoming</h2>
+      <div id="incomingList"></div>
+    </section>
+
+    <footer>
+      <small>All traffic stays on your LAN. No history saved.</small>
+    </footer>
+  </div>
+
+  <script>
+    // Run after QRCode script is definitely loaded
+    window.addEventListener('load', () => {
+      const hostUrlEl = document.getElementById('hostUrl');
+      const copyBtn = document.getElementById('copyBtn');
+      const qrEl = document.getElementById('qrcode');
+      const qrFallback = document.getElementById('qrFallback');
+
+      // Build the full local URL
+      const url = window.location.origin;
+      hostUrlEl.textContent = url;
+
+      // Copy button
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(url).then(() => {
+          alert("Copied to clipboard:\n" + url);
+        });
+      });
+
+      // Wait until QRCode is ready
+      function createQR() {
+        if (typeof QRCode === "undefined") {
+          setTimeout(createQR, 200);
+          return;
+        }
+        try {
+          new QRCode(qrEl, {
+            text: url,
+            width: 150,
+            height: 150
+          });
+        } catch (err) {
+          qrFallback.textContent = "QR error: " + err.message;
+        }
+      }
+      createQR();
+    });
+  </script>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
