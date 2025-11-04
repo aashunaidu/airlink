@@ -96,14 +96,14 @@ pip install -U pip
 - **Option A – via Downloads:**
   ```bash
   termux-setup-storage    # grant storage
-  # copy ZIP (airlink_web_v3_3.zip) to Download using the Files app or USB
+  # copy ZIP (airlink.zip) to Download using the Files app or USB
   cd ~/storage/downloads
-  unzip airlink_web_v3_3.zip -d ~/airlink_web
-  cd ~/airlink_web
+  unzip airlink.zip -d ~/airlink
+  cd ~/airlink
   ```
 - **Option B – via Git:**
   ```bash
-  git clone https://github.com/<your-user>/airlink_web.git
+  git clone https://github.com/aashunaidu/airlink.git
   cd airlink_web
   ```
 
